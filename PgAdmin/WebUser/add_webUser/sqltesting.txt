@@ -1,0 +1,14 @@
+DO $$
+DECLARE
+    new_webUser_id UUID := gen_random_uuid();
+    new_webUser_data JSONB := '{
+        "fullName": "last",
+        "userName": "aura",
+        "email": "aura@example.com",
+        "password": "securepassword",
+        "msisdn": "1234567890",
+        "webRole": "Admin"
+    }';
+BEGIN
+    CALL add_webUser(new_webUser_id, new_webUser_data);
+END $$;

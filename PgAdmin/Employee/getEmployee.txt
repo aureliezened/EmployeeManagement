@@ -1,0 +1,21 @@
+CREATE OR REPLACE FUNCTION getEmployee(
+    p_empid UUID
+)
+RETURNS TABLE (
+    employeeId INT,
+    fullName varchar,
+	profilePictureUrl varchar
+
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        e."employeeIdentifier",
+        e."fullName",
+		e."profilePictureUrl"
+    FROM
+        "Employees" e
+    WHERE
+        e."employeeId" = p_empid;
+END;
+$$ LANGUAGE plpgsql;

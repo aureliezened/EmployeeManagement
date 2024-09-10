@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION edit_web_user(webUserId UUID, updates JSONB)
+RETURNS VOID AS $$
+DECLARE
+    key TEXT;
+    value TEXT;
+    roleId int;
+BEGIN
+    FOR key, value IN SELECT * FROM jsonb_each_text(updates)
+    LOOP
+        IF key = 'webRole' THEN
+            -- Get the corresponding webRoleId from the WebRoles table
+            SELECT "webRoleId" INTO roleId FROM "WebRoles" WHERE "webRoleName" = value;
+            -- Update the WebUsers table with the webRoleId
+            EXECUTE format('UPDATE "WebUsers" SET "webRole" = %L WHERE "webUserId" = %L', roleId, webUserId);
+        ELSE
+            -- Handle other fields
+            IF jsonb_typeof(updates -> key) = 'string' THEN
+                EXECUTE format('UPDATE "WebUsers" SET %I = %L WHERE "webUserId" = %L', key, value, webUserId);
+            ELSE
+                EXECUTE format('UPDATE "WebUsers" SET %I = %s WHERE "webUserId" = %L', key, value, webUserId);
+            END IF;
+        END IF;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;

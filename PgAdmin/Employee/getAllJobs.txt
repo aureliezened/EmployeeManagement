@@ -1,0 +1,13 @@
+
+create or replace function get_all_jobs()
+returns table(
+	"jobName" varchar
+) AS $$
+begin
+	RETURN QUERY 
+	SELECT
+		j."jobName"
+	from
+		"JobTitles" j;
+end;
+$$ language plpgsql;

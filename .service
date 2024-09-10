@@ -1,0 +1,12 @@
+[Unit]
+Description= EmployeeManagement
+[Service]
+WorkingDirectory=/home/inmo/EmployeeManagement/Aurelie&Caren
+ExecStart=dotnet /home/inmo/EmployeeManagement/Aurelie&Caren/EmployeeManagement.dll
+Restart=always
+RestartSec=10
+SyslogIdentifier=dotnet-coretest
+User=root
+Environment=ASPNETCORE_ENVIRONMENT=Production
+[Install]
+WantedBy=multi-user.target

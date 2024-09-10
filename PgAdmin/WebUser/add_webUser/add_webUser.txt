@@ -1,0 +1,37 @@
+CREATE OR REPLACE PROCEDURE add_webUser(
+  webUser_id UUID,
+  webUSer_data JSONB
+) AS $$
+DECLARE
+  role_id INT;  
+  
+BEGIN
+  -- Find role ID based on role name
+  SELECT "webRoleId" INTO role_id
+  FROM "WebRoles"
+  WHERE "webRoleName" = webUser_data->>'webRole';
+  
+  -- Insert web user data into WebUsers table
+  INSERT INTO "WebUsers"(
+	"webUserId",
+	"created_at",
+    "fullName",
+	"userName",
+    "email",
+	"password",
+	"msisdn",
+	"webRole"
+
+  ) VALUES (
+	webUser_id,
+	now() ::DATE,
+    webUSer_data->>'fullName',
+	webUSer_data->>'userName',
+    webUSer_data->>'email',
+    webUSer_data->>'password',
+    webUSer_data->>'msisdn',
+	role_id
+  );
+
+END;
+$$ LANGUAGE plpgsql;

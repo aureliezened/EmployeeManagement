@@ -1,0 +1,14 @@
+CREATE OR REPLACE FUNCTION getEmployeeId(p_email varchar)
+RETURNS UUID AS $$
+DECLARE
+    emp_id UUID;
+BEGIN
+    SELECT "employeeId"
+    INTO emp_id
+    FROM "Employees" e
+    WHERE e."email" = p_email;
+
+    -- Return the employeeId
+    RETURN emp_id;
+END;
+$$ LANGUAGE plpgsql;

@@ -1,0 +1,28 @@
+CREATE OR REPLACE FUNCTION get_webUser_details(webUId UUID)
+RETURNS TABLE(
+    webUserId UUID,
+    createdAt DATE,
+    fullName VARCHAR,
+    userName VARCHAR,
+    email VARCHAR,
+    msisdn VARCHAR,
+    webRole VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT 
+        e."webUserId",
+        e."createdAt",
+        e."fullName",
+        e."userName",
+        e."email",
+        e."msisdn",
+        w."webRoleName" AS webRole
+    FROM 
+        "WebUsers" e
+    LEFT JOIN 
+        "WebRoles" w ON e."webRole" = w."webRoleId"
+    WHERE 
+        e."webUserId" = webUId;
+END;
+$$ LANGUAGE plpgsql;

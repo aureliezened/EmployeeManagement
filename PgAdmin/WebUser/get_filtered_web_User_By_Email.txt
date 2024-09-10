@@ -1,0 +1,45 @@
+CREATE OR REPLACE FUNCTION get_filtered_web_user_by_email(
+	limit_param integer, 
+	offset_param integer,
+    p_email VARCHAR DEFAULT NULL
+)
+RETURNS TABLE(webUserId UUID,   
+		      createdAt DATE,
+			  fullName VARCHAR,
+			  userName VARCHAR,
+			  email VARCHAR,
+			  msisdn VARCHAR,
+		      webRole VARCHAR
+
+		 ) AS $$
+BEGIN
+
+IF p_email IS NULL THEN
+RETURN QUERY 
+    SELECT
+		e."webUserId",
+        e."createdAt",
+        e."fullName",
+        e."userName",
+        e."email",
+        e."msisdn",
+        r."webRoleName" AS webRole
+    FROM
+        "WebUsers" e
+    LEFT JOIN
+        "WebRoles" r ON e."webRole" = r."webRoleId"
+    LIMIT limit_param
+    OFFSET offset_param;
+	ELSE
+    RETURN QUERY
+    SELECT w."webUserId", w."createdAt", w."fullName", w."userName", w."email", w."msisdn", r."webRoleName" AS webRole
+    FROM "WebUsers" w
+	LEFT JOIN
+        "WebRoles" r ON w."webRole" = r."webRoleId"
+
+    WHERE (
+          LEFT(w."email", POSITION('@' IN w."email") - 1) ILIKE '%' || COALESCE(p_email, '') || '%'
+    );
+	END IF;
+END;
+$$ LANGUAGE plpgsql;

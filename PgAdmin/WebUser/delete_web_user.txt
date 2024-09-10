@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION delete_web_user(web_user_id UUID)
+RETURNS VOID AS $$
+BEGIN
+    DELETE FROM "WebUsers"
+    WHERE "webUserId" = web_user_id;
+END;
+$$ LANGUAGE plpgsql;

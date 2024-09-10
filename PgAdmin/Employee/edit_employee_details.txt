@@ -1,0 +1,43 @@
+CREATE OR REPLACE FUNCTION edit_employee_details(employeeId UUID, updates JSONB)
+RETURNS VOID AS $$
+DECLARE
+    key TEXT;
+    value TEXT;
+    jobId INT;
+    departmentId INT;
+    statusId INT;
+    branchId INT;
+BEGIN
+    FOR key, value IN SELECT * FROM jsonb_each_text(updates)
+    LOOP
+        IF key = 'jobTitle' THEN
+            -- Get the corresponding jobId from the JobTitles table
+            SELECT "jobId" INTO jobId FROM "JobTitles" WHERE "jobName" = value;
+            -- Update the Employees table with the jobId
+            EXECUTE format('UPDATE "Employees" SET "jobTitle" = %L WHERE "employeeId" = %L', jobId, employeeId);
+        ELSIF key = 'department' THEN
+            -- Get the corresponding departmentId from the Departments table
+            SELECT "departmentId" INTO departmentId FROM "Departments" WHERE "departmentName" = value;
+            -- Update the Employees table with the departmentId
+            EXECUTE format('UPDATE "Employees" SET "department" = %L WHERE "employeeId" = %L', departmentId, employeeId);
+        ELSIF key = 'status' THEN
+            -- Get the corresponding statusId from the EmployeeStatuses table
+            SELECT "statusId" INTO statusId FROM "EmployeeStatuses" WHERE "statusName" = value;
+            -- Update the Employees table with the statusId
+            EXECUTE format('UPDATE "Employees" SET "status" = %L WHERE "employeeId" = %L', statusId, employeeId);
+        ELSIF key = 'branch' THEN
+            -- Get the corresponding branchId from the Branches table
+            SELECT "branchId" INTO branchId FROM "Branches" WHERE "branchName" = value;
+            -- Update the Employees table with the branchId
+            EXECUTE format('UPDATE "Employees" SET "branch" = %L WHERE "employeeId" = %L', branchId, employeeId);
+        ELSE
+            -- Handle other fields
+            IF jsonb_typeof(updates -> key) = 'string' THEN
+                EXECUTE format('UPDATE "Employees" SET %I = %L WHERE "employeeId" = %L', key, value, employeeId);
+            ELSE
+                EXECUTE format('UPDATE "Employees" SET %I = %s WHERE "employeeId" = %L', key, value, employeeId);
+            END IF;
+        END IF;
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;

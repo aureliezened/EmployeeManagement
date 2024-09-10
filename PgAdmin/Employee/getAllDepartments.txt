@@ -1,0 +1,13 @@
+
+create or replace function get_all_departments()
+returns table(
+	"departmentName" varchar
+) AS $$
+begin
+	RETURN QUERY 
+	SELECT
+		d."departmentName"
+	from
+		"Departments" d;
+end;
+$$ language plpgsql;

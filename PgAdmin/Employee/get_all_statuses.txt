@@ -1,0 +1,13 @@
+
+create or replace function get_all_statuses()
+returns table(
+	"statusName" varchar
+) AS $$
+begin
+	RETURN QUERY 
+	SELECT
+		s."statusName"
+	from
+		"EmployeeStatuses" s;
+end;
+$$ language plpgsql;

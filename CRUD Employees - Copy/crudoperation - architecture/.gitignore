@@ -1,0 +1,10 @@
+﻿# Ignore Visual Studio temporary files, build results, and
+# folder-based project configuration
+*.DS_Store
+*.vscode
+*.vs
+.vscode/
+.vs/
+bin/
+obj/
+

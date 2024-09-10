@@ -1,0 +1,28 @@
+CREATE OR REPLACE FUNCTION get_all_webusers(limit_param integer, offset_param integer)
+RETURNS TABLE (
+	webUserId UUID,
+	_createdAt DATE,
+    fullName VARCHAR,
+    userName VARCHAR,
+    email VARCHAR,
+    msisdn VARCHAR,	
+    webRole VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT
+		e."webUserId",
+        e."created_at",
+        e."fullName",
+        e."userName",
+        e."email",
+        e."msisdn",
+        r."webRoleName" AS webRole
+    FROM
+        "WebUsers" e
+    LEFT JOIN
+        "WebRoles" r ON e."webRole" = r."webRoleId"
+    LIMIT limit_param
+    OFFSET offset_param;
+END;
+$$ LANGUAGE plpgsql;

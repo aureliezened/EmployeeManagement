@@ -1,0 +1,72 @@
+CREATE OR REPLACE FUNCTION get_all_employees(
+	limit_param integer, 
+	offset_param integer,
+    p_general_search VARCHAR DEFAULT NULL
+)
+RETURNS TABLE(employeeId UUID,   
+		      joinedAt DATE,
+			  fullName VARCHAR,
+			  email VARCHAR,
+			  phoneNumber VARCHAR,
+			  birthDate DATE,
+		      jobTitle VARCHAR,
+			  department VARCHAR,
+			  status VARCHAR,
+			  branch VARCHAR
+
+		 ) AS $$
+BEGIN
+
+IF p_general_search IS NULL THEN
+RETURN QUERY 
+    SELECT
+		e."employeeId",
+        e."joinedAt",
+        e."fullName",
+        e."email",
+        e."phoneNumber",
+        e."birthDate",
+        j."jobName" AS jobTitle,
+		d."departmentName" AS department,
+		s."statusName" AS status,
+		b."branchName" AS branch
+    FROM
+        "Employees" e
+    LEFT JOIN
+        "JobTitles" j ON e."jobTitle" = j."jobId"
+	LEFT JOIN
+        "Departments" d ON e."department" = d."departmentId"
+	LEFT JOIN
+        "EmployeeStatuses" s ON e."status" = s."statusId"
+	LEFT JOIN
+        "Branches" b ON e."branch" = b."branchId"
+    LIMIT limit_param
+    OFFSET offset_param;
+	ELSE
+    RETURN QUERY
+    SELECT e."employeeId", e."joinedAt", e."fullName", e."email", e."phoneNumber", 
+	e."birthDate", j."jobName" AS jobTitle, d."departmentName" AS department,
+	s."statusName" AS status, b."branchName" AS branch
+    FROM "Employees" e
+	LEFT JOIN
+        "JobTitles" j ON e."jobTitle" = j."jobId"
+	LEFT JOIN
+        "Departments" d ON e."department" = d."departmentId"
+	LEFT JOIN
+        "EmployeeStatuses" s ON e."status" = s."statusId"
+	LEFT JOIN
+        "Branches" b ON e."branch" = b."branchId"
+
+    WHERE (
+        e."fullName" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+		LEFT(e."email", POSITION('@' IN e."email") - 1) ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+       -- w."email" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+        e."phoneNumber" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+        j."jobName" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+		d."departmentName" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+		s."statusName" ILIKE '%' || COALESCE(p_general_search, '') || '%' OR
+		b."branchName" ILIKE '%' || COALESCE(p_general_search, '') || '%' 
+    );
+	END IF;
+END;
+$$ LANGUAGE plpgsql;
